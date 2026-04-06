@@ -48,7 +48,7 @@
                     <?= esc($user['role'] ?? 'user') ?>
                 </td>
                 <td style="font-family:'Share Tech Mono',monospace; font-size:.75rem; color:#999;">
-                    <?= date('d M Y', strtotime($user['created_at'])) ?>
+                    <?= date('d M Y', strtotime($user['created_at'] . ' UTC')) ?>
                 </td>
                 <td style="text-align:right;">
                     <a href="/users/edit/<?= $user['id'] ?>"

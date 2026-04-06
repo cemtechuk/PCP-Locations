@@ -57,7 +57,7 @@
                     <td style="color:#555;"><?= esc($entry['description']) ?></td>
                     <td style="font-family:'Share Tech Mono',monospace; font-size:.75rem; color:#999;"><?= esc($entry['username'] ?? '—') ?></td>
                     <td style="font-family:'Share Tech Mono',monospace; font-size:.72rem; color:#bbb; white-space:nowrap;">
-                        <?= date('d M H:i', strtotime($entry['created_at'])) ?>
+                        <?= date('d M H:i', strtotime($entry['created_at'] . ' UTC')) ?>
                     </td>
                 </tr>
                 <?php endforeach ?>
@@ -105,7 +105,7 @@
                 <tr>
                     <td>
                         <span style="font-family:'Share Tech Mono',monospace; font-size:.78rem;"><?= esc($k['key_name']) ?></span>
-                        <div style="font-size:.68rem; color:#bbb;"><?= date('d M H:i', strtotime($k['last_request'])) ?></div>
+                        <div style="font-size:.68rem; color:#bbb;"><?= date('d M H:i', strtotime($k['last_request'] . ' UTC')) ?></div>
                     </td>
                     <td style="font-family:'Share Tech Mono',monospace; font-size:.85rem; color:#c8001e; text-align:right;">
                         <?= number_format($k['total']) ?>
