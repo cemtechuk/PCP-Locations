@@ -84,7 +84,7 @@ class Filters extends BaseFilters
         'before' => [
             'csrf'      => ['except' => ['api/v1/*']],
             'auth'      => ['except' => ['login', 'login/*', 'api/v1/*']],
-            'ratelimit' => ['except' => ['login', 'login/*', 'api/v1/*']],
+            'ratelimit' => ['except' => ['login', 'login/*', 'logout', 'api/v1/*']],
         ],
         'after' => [],
     ];
