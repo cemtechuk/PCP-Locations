@@ -85,6 +85,10 @@ class RateLimitFilter implements FilterInterface
                 <a href="/" style="font-family:'Share Tech Mono',monospace; font-size:.75rem; color:#999; text-decoration:none; letter-spacing:.06em; text-transform:uppercase;">
                     &larr; Home
                 </a>
+                <span style="font-family:'Share Tech Mono',monospace; font-size:.75rem; color:#ddd; margin:0 .8rem;">|</span>
+                <a href="/logout" style="font-family:'Share Tech Mono',monospace; font-size:.75rem; color:#c8001e; text-decoration:none; letter-spacing:.06em; text-transform:uppercase;">
+                    Logout
+                </a>
             </div>
         </body>
         </html>
