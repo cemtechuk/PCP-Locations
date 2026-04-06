@@ -10,13 +10,20 @@ class RateLimitFilter implements FilterInterface
 {
     public function before(RequestInterface $request, $arguments = null)
     {
-        if (session()->get('role') !== 'viewer') {
+        $role = session()->get('role');
+
+        if ($role === 'viewer') {
+            $limit   = max(1, (int) setting('viewer_rate_limit', '100'));
+            $cacheKey = 'rl_viewer_';
+        } elseif ($role === 'guest') {
+            $limit   = max(1, (int) setting('guest_rate_limit', '20'));
+            $cacheKey = 'rl_guest_';
+        } else {
             return;
         }
 
-        $limit  = max(1, (int) setting('viewer_rate_limit', '100'));
         $userId = (int) session()->get('user_id');
-        $key    = 'rl_viewer_' . $userId;
+        $key    = $cacheKey . $userId;
         $cache  = \Config\Services::cache();
 
         $data = $cache->get($key);

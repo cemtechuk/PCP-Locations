@@ -93,8 +93,9 @@ All responses are JSON. Exchange and cabinet objects include a `url` field with 
 | Role | Access |
 |------|--------|
 | *(unauthenticated)* | Public read-only pages only |
-| `viewer` | Session exists; browse-only with a configurable hourly request cap |
-| `user` | Same as viewer but no rate limiting |
+| `guest` | Browse-only with a separate configurable hourly request cap; can only be created by an admin |
+| `viewer` | Browse-only with a configurable hourly request cap |
+| `user` | Browse-only, no rate limiting |
 | `editor` | All of the above + create/edit exchanges and cabinets |
 | `admin` | All of the above + user management + settings + dashboard |
 

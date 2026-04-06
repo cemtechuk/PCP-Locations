@@ -53,6 +53,10 @@ class SettingsController extends BaseController
         $rateLimit = (int) ($this->request->getPost('viewer_rate_limit') ?? 100);
         $this->settings->saveSetting('viewer_rate_limit', (string) max(1, $rateLimit));
 
+        // Guest rate limit
+        $guestLimit = (int) ($this->request->getPost('guest_rate_limit') ?? 20);
+        $this->settings->saveSetting('guest_rate_limit', (string) max(1, $guestLimit));
+
         // Logo upload
         $logo = $this->request->getFile('logo');
         if ($logo && $logo->isValid() && ! $logo->hasMoved()) {
