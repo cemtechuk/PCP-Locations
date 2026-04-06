@@ -17,14 +17,20 @@ $routes->group('', ['filter' => 'admin'], function($routes) {
     $routes->post('/users/edit/(:num)', 'UsersController::update/$1');
     $routes->post('/users/delete/(:num)', 'UsersController::delete/$1');
 
-    $routes->get('/apikeys', 'ApiKeysController::index');
-    $routes->get('/apikeys/create', 'ApiKeysController::create');
-    $routes->post('/apikeys/create', 'ApiKeysController::store');
-    $routes->post('/apikeys/revoke/(:num)', 'ApiKeysController::revoke/$1');
-    $routes->post('/apikeys/delete/(:num)', 'ApiKeysController::delete/$1');
+    // Settings — general, import, API keys
+    $routes->get('/settings',                              'SettingsController::general');
+    $routes->post('/settings',                             'SettingsController::saveGeneral');
+    $routes->get('/settings/import',                       'SettingsController::import');
+    $routes->post('/settings/import',                      'SettingsController::importStore');
+    $routes->get('/settings/apikeys',                      'SettingsController::apiKeys');
+    $routes->get('/settings/apikeys/new',                  'SettingsController::apiKeyNew');
+    $routes->post('/settings/apikeys/new',                 'SettingsController::apiKeyStore');
+    $routes->post('/settings/apikeys/revoke/(:num)',        'SettingsController::apiKeyRevoke/$1');
+    $routes->post('/settings/apikeys/delete/(:num)',        'SettingsController::apiKeyDelete/$1');
 
-    $routes->get('/import', 'ImportController::index');
-    $routes->post('/import', 'ImportController::store');
+    // Legacy redirects
+    $routes->get('/apikeys',  function() { return redirect()->to('/settings/apikeys'); });
+    $routes->get('/import',   function() { return redirect()->to('/settings/import'); });
 });
 
 // Public REST API — authenticated via X-API-Key header, no session required

@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $title ?? 'PCP Locations' ?></title>
+    <title><?= $title ?? esc(setting('site_title', 'PCP Locations')) ?></title>
+    <?php if (setting('favicon_path')): ?>
+    <link rel="icon" href="/uploads/settings/<?= esc(setting('favicon_path')) ?>">
+    <?php else: ?>
+    <link rel="icon" href="/favicon.ico">
+    <?php endif ?>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
@@ -239,14 +244,19 @@
 <nav class="s-nav">
     <div class="container d-flex align-items-center justify-content-between">
         <a href="/" class="brand" style="display:flex; align-items:center; gap:.5rem;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="15" viewBox="0 0 30 28" style="flex-shrink:0; margin-bottom:1px;">
-                <polygon points="2,2 28,2 15,26" fill="none" stroke="#c8001e" stroke-width="2.5" stroke-linejoin="miter"/>
-                <circle cx="15" cy="10" r="1.8" fill="#c8001e"/>
-            </svg>
-            PCP<span>_</span>LOCATIONS
+            <?php if (setting('logo_path')): ?>
+                <img src="/uploads/settings/<?= esc(setting('logo_path')) ?>" alt="<?= esc(setting('site_title', 'PCP Locations')) ?>"
+                     style="max-height:28px; max-width:160px; object-fit:contain;">
+            <?php else: ?>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="15" viewBox="0 0 30 28" style="flex-shrink:0; margin-bottom:1px;">
+                    <polygon points="2,2 28,2 15,26" fill="none" stroke="#c8001e" stroke-width="2.5" stroke-linejoin="miter"/>
+                    <circle cx="15" cy="10" r="1.8" fill="#c8001e"/>
+                </svg>
+                <?= esc(setting('site_title', 'PCP Locations')) ?>
+            <?php endif ?>
         </a>
         <div class="d-flex align-items-center gap-4">
-<?php if (session()->get('role') === 'admin'): ?><a href="/users" class="nav-link-item">Users</a><a href="/apikeys" class="nav-link-item">API Keys</a><a href="/import" class="nav-link-item">Import</a><?php endif ?>
+<?php if (session()->get('role') === 'admin'): ?><a href="/users" class="nav-link-item">Users</a><a href="/settings" class="nav-link-item">Settings</a><?php endif ?>
             <span class="nav-meta"><?= esc(session()->get('username') ?? '') ?></span>
             <a href="/logout" class="nav-link-item">Logout</a>
         </div>
@@ -259,7 +269,7 @@
 
 <footer>
     <div class="container">
-        PCP LOCATIONS &nbsp;&mdash;&nbsp; <?= number_format($totalCount ?? 0) ?> RECORDS
+        <?= esc(strtoupper(setting('site_title', 'PCP Locations'))) ?> &nbsp;&mdash;&nbsp; <?= number_format($totalCount ?? 0) ?> RECORDS
     </div>
 </footer>
 
