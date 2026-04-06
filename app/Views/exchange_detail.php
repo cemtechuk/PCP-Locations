@@ -109,4 +109,20 @@ if ($info['exch_lat'] && $info['exch_lng']) {
     <?php endif ?>
 </div>
 
+<script>
+(function () {
+    var els = Array.from(document.querySelectorAll('.cab-id'));
+    if (!els.length) return;
+    // Adaptive stagger: cap total reveal time at ~900ms
+    var stagger = Math.min(35, Math.floor(900 / els.length));
+    els.forEach(function (el, i) {
+        var text = el.textContent;
+        el.innerHTML = '&nbsp;';
+        setTimeout(function () {
+            new TextScramble(el).setText(text);
+        }, i * stagger);
+    });
+})();
+</script>
+
 <?= $this->endSection() ?>

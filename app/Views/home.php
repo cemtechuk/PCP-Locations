@@ -40,6 +40,23 @@
 
 <script>
 (function () {
+    /* ── TextScramble helpers ── */
+    let scrambleTimers  = [];
+    let nearbyTimers    = [];
+
+    function scrambleList(rowEls, dataArr) {
+        scrambleTimers.forEach(clearTimeout);
+        scrambleTimers = [];
+        rowEls.forEach(function (row, i) {
+            scrambleTimers.push(setTimeout(function () {
+                const nameEl   = row.querySelector('.sr-name');
+                const regionEl = row.querySelector('.sr-region');
+                if (nameEl)   new TextScramble(nameEl).setText(nameEl.dataset.text);
+                if (regionEl) new TextScramble(regionEl).setText(regionEl.dataset.text);
+            }, i * 45));
+        });
+    }
+
     /* ── Search ── */
     const input = document.getElementById('exchangeSearch');
     const box   = document.getElementById('searchResults');
@@ -54,30 +71,36 @@
 
         if (!data.length) {
             list.innerHTML = '<div style="padding:.8rem 1rem; font-family:\'Share Tech Mono\',monospace; font-size:.75rem; color:#999; letter-spacing:.06em;">NO RECORDS FOUND</div>';
-        } else {
-            list.innerHTML = data.map((r, i) => `
-                <div class="s-result-row"
-                     data-url="${r.detail_url}"
-                     data-index="${i}"
-                     style="display:flex; align-items:center; justify-content:space-between;
-                            padding:.65rem 1rem; border-bottom:1px solid #f0f0f0; cursor:pointer;">
-                    <div>
-                        <div style="font-family:'Share Tech Mono',monospace; font-size:.88rem; letter-spacing:.04em;">${r.exchange}</div>
-                        <div style="font-size:.72rem; color:#999; margin-top:2px; letter-spacing:.04em;">${r.db_name.toUpperCase()}</div>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:1.2rem;">
-                        <span style="font-family:'Share Tech Mono',monospace; font-size:.72rem; color:#bbb;">${r.cabinet_count} CAB${r.cabinet_count !== 1 ? 'S' : ''}</span>
-                        ${r.maps_url ? `<a href="${r.maps_url}" target="_blank" class="map-link" onclick="event.stopPropagation()">MAP</a>` : ''}
-                    </div>
-                </div>
-            `).join('');
+            box.classList.remove('d-none');
+            return;
         }
+
+        list.innerHTML = data.map((r, i) => `
+            <div class="s-result-row"
+                 data-url="${r.detail_url}"
+                 data-index="${i}"
+                 style="display:flex; align-items:center; justify-content:space-between;
+                        padding:.65rem 1rem; border-bottom:1px solid #f0f0f0; cursor:pointer;">
+                <div>
+                    <div class="sr-name" data-text="${r.exchange}"
+                         style="font-family:'Share Tech Mono',monospace; font-size:.88rem; letter-spacing:.04em; min-width:4ch;">&nbsp;</div>
+                    <div class="sr-region" data-text="${r.db_name.toUpperCase()}"
+                         style="font-size:.72rem; color:#999; margin-top:2px; letter-spacing:.04em; min-width:3ch;">&nbsp;</div>
+                </div>
+                <div style="display:flex; align-items:center; gap:1.2rem;">
+                    <span style="font-family:'Share Tech Mono',monospace; font-size:.72rem; color:#bbb;">${r.cabinet_count} CAB${r.cabinet_count !== 1 ? 'S' : ''}</span>
+                    ${r.maps_url ? `<a href="${r.maps_url}" target="_blank" class="map-link" onclick="event.stopPropagation()">MAP</a>` : ''}
+                </div>
+            </div>
+        `).join('');
 
         box.classList.remove('d-none');
 
         list.querySelectorAll('.s-result-row').forEach(function (row) {
             row.addEventListener('click', function () { window.location.href = row.dataset.url; });
         });
+
+        scrambleList(Array.from(list.querySelectorAll('.s-result-row')), data);
     }
 
     function doSearch(q) {
@@ -118,8 +141,10 @@
                         padding:.55rem 0; border-bottom:1px solid #f0f0f0; cursor:pointer;"
                  onclick="window.location.href='${r.detail_url}'">
                 <div>
-                    <span style="font-family:'Share Tech Mono',monospace; font-size:.88rem; letter-spacing:.04em;">${r.exchange}</span>
-                    <span style="font-family:'Share Tech Mono',monospace; font-size:.7rem; color:#999; margin-left:.8rem;">${r.db_name.toUpperCase()}</span>
+                    <span class="nr-name" data-text="${r.exchange}"
+                          style="font-family:'Share Tech Mono',monospace; font-size:.88rem; letter-spacing:.04em;">&nbsp;</span>
+                    <span class="nr-region" data-text="${r.db_name.toUpperCase()}"
+                          style="font-family:'Share Tech Mono',monospace; font-size:.7rem; color:#999; margin-left:.8rem;">&nbsp;</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:1rem;">
                     <span style="font-family:'Share Tech Mono',monospace; font-size:.72rem; color:#bbb;">${r.cabinet_count} CABS</span>
@@ -127,6 +152,14 @@
                 </div>
             </div>
         `).join('');
+
+        nearbyTimers.forEach(clearTimeout);
+        nearbyTimers = [];
+        nearbyList.querySelectorAll('[data-text]').forEach(function (el, i) {
+            nearbyTimers.push(setTimeout(function () {
+                new TextScramble(el).setText(el.dataset.text);
+            }, i * 40));
+        });
     }
 
     if ('geolocation' in navigator) {
@@ -141,9 +174,7 @@
                         else nearbyStatus.textContent = 'NO NEARBY EXCHANGES FOUND';
                     });
             },
-            function () {
-                nearbyStatus.textContent = 'LOCATION UNAVAILABLE';
-            },
+            function () { nearbyStatus.textContent = 'LOCATION UNAVAILABLE'; },
             { timeout: 8000 }
         );
     } else {

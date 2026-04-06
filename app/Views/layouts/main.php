@@ -9,6 +9,48 @@
     <?php else: ?>
     <link rel="icon" href="/favicon.ico">
     <?php endif ?>
+    <script>
+    class TextScramble {
+        constructor(el) {
+            this.el    = el;
+            this.chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!<>-_\\/[]{}=+*^?#';
+            this.frameReq = null;
+        }
+        setText(newText) {
+            return new Promise(resolve => {
+                this.resolve = resolve;
+                this.queue = newText.split('').map((to, i) => ({
+                    to,
+                    start : Math.floor(i * 1.4),
+                    end   : Math.floor(i * 1.4) + Math.floor(Math.random() * 5) + 4,
+                }));
+                cancelAnimationFrame(this.frameReq);
+                this.frame = 0;
+                this.update();
+            });
+        }
+        update() {
+            let out = '', done = 0;
+            for (const q of this.queue) {
+                if (this.frame >= q.end) {
+                    done++;
+                    out += q.to;
+                } else if (this.frame >= q.start) {
+                    out += '<span style="color:#c8001e;opacity:.65;">' + this.rnd() + '</span>';
+                } else {
+                    out += '<span style="color:#ddd;">' + this.rnd() + '</span>';
+                }
+            }
+            this.el.innerHTML = out;
+            if (done === this.queue.length) {
+                this.resolve();
+            } else {
+                this.frameReq = requestAnimationFrame(() => { this.frame++; this.update(); });
+            }
+        }
+        rnd() { return this.chars[Math.floor(Math.random() * this.chars.length)]; }
+    }
+    </script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
