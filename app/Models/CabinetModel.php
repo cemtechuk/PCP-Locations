@@ -131,16 +131,16 @@ class CabinetModel extends Model
 
     public function getTotalExchanges(): int
     {
-        return (int) $this->db->table('cabinets')
-            ->selectCount('DISTINCT CONCAT(db, "|", exchange)', 'n')
-            ->get()->getRow()->n;
+        return (int) $this->db
+            ->query('SELECT COUNT(DISTINCT CONCAT(db, "|", exchange)) AS n FROM cabinets')
+            ->getRow()->n;
     }
 
     public function getTotalRegions(): int
     {
-        return (int) $this->db->table('cabinets')
-            ->selectCount('DISTINCT db', 'n')
-            ->get()->getRow()->n;
+        return (int) $this->db
+            ->query('SELECT COUNT(DISTINCT db) AS n FROM cabinets')
+            ->getRow()->n;
     }
 
     public function getTopExchanges(int $limit = 5): array
