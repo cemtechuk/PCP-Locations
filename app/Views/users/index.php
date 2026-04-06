@@ -23,7 +23,7 @@
         <div class="s-alert-error mb-3"><?= esc(session()->getFlashdata('error')) ?></div>
     <?php endif ?>
 
-    <?php $roleColour = ['viewer' => '#bbb', 'user' => '#999', 'editor' => '#555', 'admin' => '#c8001e']; ?>
+    <?php $roleColour = ['guest' => '#d4a017', 'viewer' => '#bbb', 'user' => '#999', 'editor' => '#555', 'admin' => '#c8001e']; ?>
     <table class="s-table">
         <thead>
             <tr>
