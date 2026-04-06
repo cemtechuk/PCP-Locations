@@ -2,89 +2,151 @@
 
 A web application for browsing and locating UK telephone exchange PCP (Primary Cross-connection Point) cabinets. Built with CodeIgniter 4 / PHP 8.2 and MySQL.
 
-**No data is included.** This is a blank container — bring your own cabinet dataset. See [Importing Your Data](#importing-your-data) below for the expected format.
+**No data is included.** This is a blank container — bring your own cabinet dataset. See [Importing Your Data](#importing-your-data) for the expected format.
 
 ---
 
 ## What it does
 
-PCP cabinets are the green street-side boxes that connect homes and businesses to their local telephone exchange. This app lets you search for exchanges, browse every cabinet on that exchange, see addresses and GPS coordinates, and view cabinet locations on a map — all in one place.
+PCP cabinets are the green street-side boxes that connect homes and businesses to their local telephone exchange. This app lets you search for exchanges, browse every cabinet on that exchange, see addresses and GPS coordinates, and view cabinet locations on a map.
 
 ---
 
 ## Features
 
 ### Public — Exchange Search
-The home page provides a live search box. As you type (minimum 2 characters), results appear in real time via a debounced AJAX call. Each result shows the exchange name, region, cabinet count, and a direct Google Maps link to the exchange building.
 
-Keyboard navigation is supported: arrow keys move through results, Enter navigates, Escape dismisses.
+The home page has a live search box. Results appear as you type (minimum 2 characters) via a debounced AJAX call. Each result shows the exchange name, region, cabinet count, and a Google Maps link to the exchange building. Results animate in with a Samaritan-style text scramble effect.
+
+Keyboard navigation is supported: arrow keys move through results, Enter navigates to the selected exchange, Escape dismisses the list.
 
 ### Public — Nearby Exchanges
-On page load the browser requests the user's GPS location. If granted, the 3 nearest exchanges are shown beneath the search box, each with their distance in kilometres calculated using the Haversine formula against the exchange building's coordinates.
+
+On page load the browser requests the user's GPS location. If granted, the 3 nearest exchanges are shown beneath the search box with their distance in kilometres, calculated using the Haversine formula against each exchange building's coordinates. These also scramble in on load.
 
 ### Public — Exchange Detail
+
 URL: `/exchange/{db}/{exchange}` (e.g. `/exchange/CL/HACKNEY`)
 
-Shows all cabinets for that exchange in a sortable table (ordered alphanumerically by cabinet ID). Includes cabinet name, street address, notes, and a Google Maps link for cabinets that have coordinates. A filter input lets you narrow results by cabinet number or address fragment.
+Lists all cabinets for that exchange ordered alphanumerically by cabinet ID. Each row shows the cabinet ID, street address, any notes, and a Google Maps link when coordinates are available. A filter input lets you narrow the list by cabinet ID or address fragment.
+
+An **Export CSV** button downloads the current exchange's cabinets as a CSV file.
 
 ### Public — Cabinet Detail
+
 URL: `/cabinet/{id}`
 
-Shows full detail for a single cabinet:
+Full detail for a single cabinet:
+
 - Exchange, cabinet ID, region, address, coordinates
-- Live distance from the user's current GPS location (computed client-side)
-- Interactive map (Leaflet + CartoDB tiles) with a custom hollow red triangle marker and a subtle pulse circle
-- Google Maps and Street View links
+- Live distance from the user's current GPS position (computed client-side)
+- Interactive Leaflet map (CartoDB tiles) with a custom hollow red triangle marker and a pulsing circle
+- Google Maps and Street View deep links
 - Breadcrumb navigation back to the exchange
 
-### Editor / Admin — Content Management
-Users with the `editor` or `admin` role can:
-- Create a new exchange (creates an `EXCH` anchor row that provides the exchange's own coordinates)
-- Add cabinets to an existing exchange
-- Edit any cabinet's details (cab ID, address, coordinates, notes)
+---
 
-These controls appear inline in the UI — an "Add Exchange" button on the home page and "Add Cabinet" / "Edit" buttons on the relevant detail pages.
+### Editor / Admin — Content Management
+
+Users with the `editor` or `admin` role can create and edit data directly from the UI:
+
+- **Add Exchange** — creates the exchange with an `EXCH` anchor row that stores the exchange building's coordinates. The anchor row is required for the GPS nearby feature and map pin to work.
+- **Add Cabinet** — adds a new cabinet row to an existing exchange.
+- **Edit Cabinet** — update any cabinet's ID, address, coordinates, and notes.
+- **Delete Exchange** — removes all rows for an exchange (the anchor row plus every cabinet). Requires confirmation. Available on the exchange detail page.
+
+---
 
 ### Admin — Dashboard
+
 URL: `/dashboard`
 
-An at-a-glance overview of the system: total cabinet records, exchanges, regions, users, and API keys. Shows recent audit activity (creates/updates/deletes), top exchanges by cabinet count, and API key usage. Includes a button to export the entire dataset as a CSV.
+At-a-glance statistics:
+
+| Stat | Description |
+|------|-------------|
+| Cabinets | Total rows in the cabinets table |
+| Exchanges | Distinct exchange count |
+| Regions | Distinct region (db) count |
+| Users | Total user accounts |
+| Active Keys | API keys not revoked |
+| API Today | Requests logged today |
+| API 7 Days | Requests logged in the last 7 days |
+
+Below the stats:
+
+- **Recent Activity** — last 20 audit log entries, colour-coded by action (green = created, grey = updated, red = deleted)
+- **Top Exchanges** — exchanges ranked by cabinet count; rows are clickable
+- **API Key Usage** — request count per key with last-used timestamp
+
+An **Export All CSV** button in the page header downloads the entire dataset.
+
+---
 
 ### Admin — User Management
-URL: `/users` (also accessible from the Admin nav dropdown)
 
-Admins can create, edit, and delete user accounts. Each user has a `username`, `email`, `password` (bcrypt), and a `role` (`viewer`, `user`, `editor`, or `admin`).
+URL: `/users`
 
-The `viewer` role can log in and browse the site but earns no extra write permissions. A per-hour request cap for viewers is configurable in Settings → General.
+Create, edit, and delete user accounts. Fields: username, email, bcrypt password, role. See [Authentication & Roles](#authentication--roles) for what each role can do.
+
+---
 
 ### Admin — Settings
+
 URL: `/settings`
 
-Three-tab admin page:
-- **General** — site title, logo (file upload), favicon (file upload or paste an SVG string with live preview), text-scramble animation speed (1–5 scale), viewer hourly request limit
-- **Import** — upload a CSV file to bulk-import cabinet data without touching the CLI
-- **API Keys** — generate, view, revoke, and delete REST API keys; each key can have an optional per-hour rate limit
+Three tabs:
 
-### All users — Profile
+**General**
+
+| Setting | Description |
+|---------|-------------|
+| Site Title | Shown in the nav bar and browser tab |
+| Logo | Upload an image (PNG, JPG, GIF, SVG, WEBP) to replace the text brand in the nav. Removable. |
+| Favicon | Upload a file (ICO, PNG, SVG) or paste an SVG string directly — a live preview renders as you type |
+| Scramble Speed | Controls how fast the text-scramble animation plays. Scale of 1 (Fast) to 5 (Glacial). |
+| Viewer Rate Limit | Maximum requests per hour for all `viewer` accounts |
+| Guest Rate Limit | Maximum requests per hour for all `guest` accounts |
+
+**Import**
+
+Upload a CSV file to bulk-import cabinet records. The file is validated and inserted in the background. See [Importing Your Data](#importing-your-data) for the required format.
+
+**API Keys**
+
+Generate, view, revoke, and permanently delete REST API keys. Each key can have an optional per-hour rate limit — blank means unlimited. The table shows each key's name, creation date, last-used time, and request cap.
+
+---
+
+### All Users — Profile
+
 URL: `/profile`
 
-Every logged-in user can update their own username, email, and password. The logout button lives here.
+Every logged-in user can update their own username, email, and password (current password is not required — admins can reset anyone's password via the Users page). The red **Logout** button is here.
 
 ---
 
 ## REST API
 
-All endpoints are under `/api/v1/` and require the `X-API-Key` header. No session is needed.
+All endpoints are under `/api/v1/` and require an `X-API-Key` header. No session is needed.
+
+```
+X-API-Key: your-key-here
+```
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/v1/exchanges` | Search exchanges. Params: `q` (name filter), `limit` (default 20, max 100) |
-| GET | `/api/v1/exchanges/{db}/{exchange}` | Full exchange detail with all its cabinets |
+| GET | `/api/v1/exchanges` | List/search exchanges. Params: `q` (name filter), `limit` (default 20, max 100) |
+| GET | `/api/v1/exchanges/{db}/{exchange}` | Exchange detail with all its cabinets |
 | GET | `/api/v1/cabinets/{id}` | Single cabinet by ID |
-| GET | `/api/v1/nearby` | Nearest exchanges by GPS. Params: `lat`, `lng`, `limit` (default 3, max 20) |
-| GET | `/api/v1/search` | Find a cabinet. Params: `exchange` (fuzzy), `cab` (exact, case-insensitive) |
+| GET | `/api/v1/nearby` | Nearest exchanges. Params: `lat`, `lng` (required), `limit` (default 3, max 20) |
+| GET | `/api/v1/search` | Find a cabinet. Params: `exchange` (fuzzy name match), `cab` (exact, case-insensitive) |
 
-All responses are JSON. Exchange and cabinet objects include a `url` field with the canonical web page link.
+All responses are JSON. Exchange and cabinet objects include a `url` field with the canonical web UI link. Error responses use appropriate HTTP status codes (400, 404, 429).
+
+**Rate limiting:** If a key has a rate limit set, requests exceeding that limit within a rolling 60-minute window return HTTP 429 with a JSON error body.
+
+**Request logging:** Every authenticated API request is logged to the `api_logs` table and reflected on the dashboard.
 
 ---
 
@@ -93,15 +155,17 @@ All responses are JSON. Exchange and cabinet objects include a `url` field with 
 | Role | Access |
 |------|--------|
 | *(unauthenticated)* | Public read-only pages only |
-| `guest` | Browse-only with a separate configurable hourly request cap; can only be created by an admin |
-| `viewer` | Browse-only with a configurable hourly request cap |
-| `user` | Browse-only, no rate limiting |
-| `editor` | All of the above + create/edit exchanges and cabinets |
-| `admin` | All of the above + user management + settings + dashboard |
+| `guest` | Logged-in, browse-only, with a dedicated hourly request cap. Can only be created by an admin. |
+| `viewer` | Logged-in, browse-only, with a separate configurable hourly request cap |
+| `user` | Logged-in, browse-only, no rate limiting |
+| `editor` | All of the above + create/edit/delete exchanges and cabinets |
+| `admin` | Full access: all editor permissions + user management + settings + dashboard |
 
-The login page is at `/login`. After login, users are redirected to the page they were trying to reach. The session stores `user_id`, `username`, `role`, and `logged_in`.
+The login page is at `/login`. After login, users are redirected to the page they were originally trying to reach. The session stores `user_id`, `username`, `role`, and `logged_in`.
 
 API routes bypass session auth entirely and use the `X-API-Key` header instead.
+
+Rate limits for `guest` and `viewer` use a rolling 60-minute window stored in the application cache. Requests over the limit receive a styled 429 page (or JSON for AJAX/API calls) showing the limit and how long until the window resets.
 
 ---
 
@@ -116,30 +180,56 @@ Region (db / db_name)  →  Exchange  →  Cabinet (cab)
 
 Each row is one cabinet. An exchange's own building is stored as a special row with `cab = 'EXCH'` — this is where exchange-level coordinates come from. All queries that need exchange lat/lng use `MAX(CASE WHEN UPPER(cab) = 'EXCH' THEN lat END)`.
 
-Cabinet IDs and exchange names are stored uppercased. Cabinets are sorted alphanumerically (`P1`, `P2`, ... `P10` not `P1`, `P10`, `P2`).
+Cabinet IDs and exchange names are stored uppercased.
+
+Supporting tables:
+
+| Table | Purpose |
+|-------|---------|
+| `users` | User accounts with bcrypt passwords and roles |
+| `api_keys` | REST API keys with optional per-key rate limits |
+| `api_logs` | Every API request (key, endpoint, IP, timestamp) |
+| `audit_log` | Every create/update/delete action on cabinet data |
+| `settings` | Key-value store for admin-configurable settings |
 
 ---
 
 ## Importing Your Data
 
-The app ships with no cabinet data. You need to provide a CSV file named `cablocations.csv` in the project root, then run the seeder to import it.
+Cabinet data can be imported two ways:
+
+### Via the admin UI
+
+Go to **Settings → Import**, select your CSV file, and submit. Records are inserted in batches and duplicates are not checked — clear the `cabinets` table first if you need a clean slate.
+
+### Via the CLI seeder
+
+Place your CSV at `scraper/cablocations.csv`, then run:
+
+```bash
+php spark db:seed CabinetSeeder
+```
+
+The seeder inserts records in batches of 500 and prints progress as it runs.
+
+---
 
 ### CSV format
 
-The file must have a header row with these columns in order:
+The file must have a header row with these exact column names:
 
 | Column | Type | Required | Description |
 |--------|------|----------|-------------|
-| `db` | string (max 5) | Yes | Short region/database code, e.g. `CL`, `LN` |
+| `db` | string (max 5) | Yes | Short region code, e.g. `CL`, `LN` |
 | `db_name` | string (max 50) | Yes | Human-readable region name, e.g. `Central London` |
 | `exchange` | string (max 100) | Yes | Exchange name, e.g. `HACKNEY`. Stored uppercased. |
-| `cab` | string (max 20) | Yes | Cabinet identifier, e.g. `P1`, `P2`. Use `EXCH` for the exchange building itself. Stored uppercased. |
-| `address` | string | No | Street address of the cabinet |
+| `cab` | string (max 20) | Yes | Cabinet ID, e.g. `P1`, `P2`. Use `EXCH` for the exchange building. Stored uppercased. |
+| `address` | string | No | Street address |
 | `lat` | decimal | No | Latitude (WGS84), e.g. `51.54412300` |
 | `long` | decimal | No | Longitude (WGS84), e.g. `-0.05531200` |
 | `notes` | string | No | Any additional notes |
 
-Example rows:
+Example:
 
 ```csv
 db,db_name,exchange,cab,address,lat,long,notes
@@ -148,39 +238,31 @@ CL,Central London,HACKNEY,P1,queensbridge road london,51.54412300,-0.05531200,
 CL,Central London,HACKNEY,P2,the triangle london,51.53832500,-0.07163200,
 ```
 
-> **The `EXCH` row is important.** Each exchange should have one row with `cab = EXCH` representing the exchange building. This row's coordinates are used as the exchange's location for the map link and the GPS nearby feature. Exchanges without an `EXCH` row will still work but won't have a precise map pin.
-
-### Importing
-
-Place your `cablocations.csv` in the project root, then run:
-
-```bash
-php spark db:seed CabinetSeeder
-```
-
-The seeder inserts records in batches of 500 and will print progress as it runs. Re-running it will insert duplicates — truncate the `cabinets` table first if you need a clean import.
+> **The `EXCH` row is required for full functionality.** Each exchange should have one row with `cab = EXCH` representing the exchange building. Its coordinates are used for the map pin and GPS nearby feature. Exchanges without an `EXCH` row will still list their cabinets but won't have a precise location.
 
 ---
 
 ## Setup
 
-**Requirements:** PHP 8.2+, MySQL, Composer, `intl` and `mbstring` PHP extensions.
+**Requirements:** PHP 8.2+, MySQL 5.7+ or MariaDB 10.3+, Composer, `intl` and `mbstring` PHP extensions.
 
 ```bash
 composer install
 cp env .env
 # Edit .env — set app.baseURL and database.default.* credentials
 php spark migrate
-php spark db:seed AdminUserSeeder   # creates default admin account
+php spark db:seed AdminUserSeeder   # creates the default admin account
 php spark serve                     # dev server at http://localhost:8080
 ```
+
+The default admin credentials are set in `app/Database/Seeds/AdminUserSeeder.php`.
 
 ---
 
 ## Tech Stack
 
-- **Backend:** CodeIgniter 4.7, PHP 8.2
-- **Database:** MySQL (`cabinets`, `users`, `api_keys`, `api_logs`, `audit_log`, `settings`)
+- **Backend:** CodeIgniter 4, PHP 8.2
+- **Database:** MySQL
 - **Frontend:** Bootstrap 5.3, Share Tech Mono (Google Fonts), vanilla JS
 - **Maps:** Leaflet 1.9 with CartoDB light tiles
 - **Tests:** PHPUnit 10
