@@ -122,7 +122,11 @@ Generate, view, revoke, and permanently delete REST API keys. Each key can have 
 
 URL: `/profile`
 
-Every logged-in user can update their own username, email, and password (current password is not required — admins can reset anyone's password via the Users page). The red **Logout** button is here.
+Every logged-in user has a profile page. The red **Logout** button lives here.
+
+Users with the `viewer`, `user`, `editor`, or `admin` role can update their own username, email, and password from this page (leaving the password field blank keeps the current one).
+
+**Guest accounts are read-only** — the edit form is not shown and the update endpoint is blocked. An admin must make any changes to a guest account via the Users management page.
 
 ---
 
@@ -155,8 +159,8 @@ All responses are JSON. Exchange and cabinet objects include a `url` field with 
 | Role | Access |
 |------|--------|
 | *(unauthenticated)* | Public read-only pages only |
-| `guest` | Logged-in, browse-only, with a dedicated hourly request cap. Can only be created by an admin. |
-| `viewer` | Logged-in, browse-only, with a separate configurable hourly request cap |
+| `guest` | Logged-in, browse-only, with a dedicated hourly request cap. Can only be created by an admin. Cannot edit their own profile. |
+| `viewer` | Logged-in, browse-only, with a separate configurable hourly request cap. Can edit their own profile. |
 | `user` | Logged-in, browse-only, no rate limiting |
 | `editor` | All of the above + create/edit/delete exchanges and cabinets |
 | `admin` | Full access: all editor permissions + user management + settings + dashboard |
