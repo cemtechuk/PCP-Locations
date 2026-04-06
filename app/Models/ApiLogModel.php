@@ -39,6 +39,13 @@ class ApiLogModel extends Model
             ->findAll();
     }
 
+    public function countLastHour(int $keyId): int
+    {
+        return (int) $this->db
+            ->query('SELECT COUNT(*) AS n FROM api_logs WHERE api_key_id = ? AND created_at >= DATE_SUB(NOW(), INTERVAL 1 HOUR)', [$keyId])
+            ->getRow()->n;
+    }
+
     public function getTotalToday(): int
     {
         return $this->where('created_at >=', date('Y-m-d 00:00:00'))->countAllResults();

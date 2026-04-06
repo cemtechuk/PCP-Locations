@@ -27,10 +27,26 @@ class ApiKeyFilter implements FilterInterface
                 ->setJSON(['error' => 'Invalid or inactive API key.']);
         }
 
-        $model->touchLastUsed((int) $record['id']);
+        $keyId    = (int) $record['id'];
+        $apiLogs  = new ApiLogModel();
 
-        (new ApiLogModel())->record(
-            (int) $record['id'],
+        // Per-key rate limit (NULL = unlimited)
+        if (! empty($record['rate_limit'])) {
+            $used = $apiLogs->countLastHour($keyId);
+            if ($used >= (int) $record['rate_limit']) {
+                return response()->setStatusCode(429)->setJSON([
+                    'error'   => 'Rate limit exceeded for this API key.',
+                    'limit'   => (int) $record['rate_limit'],
+                    'used'    => $used,
+                    'resets'  => 'within 1 hour of your oldest request',
+                ]);
+            }
+        }
+
+        $model->touchLastUsed($keyId);
+
+        $apiLogs->record(
+            $keyId,
             $record['name'],
             $request->getUri()->getPath(),
             $request->getIPAddress()

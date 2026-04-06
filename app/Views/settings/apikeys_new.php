@@ -27,6 +27,17 @@
                         Descriptive label so you know which app is using this key.
                     </div>
                 </div>
+
+                <div class="mb-3">
+                    <label class="s-label d-block mb-1">RATE LIMIT (REQUESTS / HOUR)</label>
+                    <input type="number" name="rate_limit" class="form-control" min="1"
+                           placeholder="Leave blank for unlimited"
+                           value="<?= esc(old('rate_limit')) ?>">
+                    <div style="font-size:.72rem; color:#999; margin-top:.3rem;">
+                        Maximum requests this key can make per rolling hour. Leave blank for no limit.
+                    </div>
+                </div>
+
                 <div style="display:flex; gap:.6rem; margin-top:1.2rem;">
                     <button type="submit" class="btn-s-primary">Generate Key</button>
                     <a href="/settings/apikeys" class="btn-s-ghost">Cancel</a>

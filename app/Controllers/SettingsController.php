@@ -262,12 +262,17 @@ class SettingsController extends BaseController
             return redirect()->back()->withInput()->with('error', 'Name is required.');
         }
 
-        $key = $this->apiKeys->generateKey();
+        $key       = $this->apiKeys->generateKey();
+        $rateLimit = $this->request->getPost('rate_limit');
+        $rateLimit = ($rateLimit !== '' && $rateLimit !== null && (int) $rateLimit > 0)
+            ? (int) $rateLimit
+            : null;
 
         $this->apiKeys->insert([
             'name'       => $name,
             'api_key'    => $key,
             'active'     => 1,
+            'rate_limit' => $rateLimit,
             'created_by' => session()->get('user_id'),
         ]);
 

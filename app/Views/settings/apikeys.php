@@ -36,6 +36,7 @@
                 <th>Name</th>
                 <th>Key (partial)</th>
                 <th>Status</th>
+                <th>Limit / hr</th>
                 <th>Last Used</th>
                 <th>Created</th>
                 <th></th>
@@ -54,6 +55,9 @@
                     <?php else: ?>
                         <span style="color:#999; font-family:'Share Tech Mono',monospace; font-size:.72rem; letter-spacing:.06em;">REVOKED</span>
                     <?php endif ?>
+                </td>
+                <td style="font-family:'Share Tech Mono',monospace; font-size:.75rem; color:<?= $k['rate_limit'] ? '#555' : '#bbb' ?>;">
+                    <?= $k['rate_limit'] ? number_format($k['rate_limit']) : '∞' ?>
                 </td>
                 <td style="color:#999; font-size:.78rem;"><?= $k['last_used_at'] ? esc($k['last_used_at']) : '—' ?></td>
                 <td style="color:#999; font-size:.78rem;"><?= esc(substr($k['created_at'], 0, 10)) ?></td>

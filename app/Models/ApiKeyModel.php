@@ -8,7 +8,7 @@ class ApiKeyModel extends Model
 {
     protected $table         = 'api_keys';
     protected $primaryKey    = 'id';
-    protected $allowedFields = ['name', 'api_key', 'active', 'created_by', 'last_used_at'];
+    protected $allowedFields = ['name', 'api_key', 'active', 'rate_limit', 'created_by', 'last_used_at'];
     protected $useTimestamps  = true;
 
     public function findByKey(string $key): array|null
