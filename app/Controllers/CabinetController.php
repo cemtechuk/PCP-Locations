@@ -2,15 +2,18 @@
 
 namespace App\Controllers;
 
+use App\Models\AuditLogModel;
 use App\Models\CabinetModel;
 
 class CabinetController extends BaseController
 {
-    protected CabinetModel $model;
+    protected CabinetModel   $model;
+    protected AuditLogModel  $audit;
 
     public function __construct()
     {
         $this->model = new CabinetModel();
+        $this->audit = new AuditLogModel();
     }
 
     // GET /exchange/create
@@ -37,15 +40,12 @@ class CabinetController extends BaseController
         ];
 
         if (! $this->validate($rules)) {
-            return redirect()->back()
-                ->with('errors', $this->validator->getErrors())
-                ->withInput();
+            return redirect()->back()->with('errors', $this->validator->getErrors())->withInput();
         }
 
         $db       = strtoupper(trim($this->request->getPost('db')));
         $exchange = strtoupper(trim($this->request->getPost('exchange')));
 
-        // Find db_name from the selected region
         $regions = $this->model->getRegions();
         $dbName  = '';
         foreach ($regions as $r) {
@@ -58,8 +58,7 @@ class CabinetController extends BaseController
                 ->withInput();
         }
 
-        // Create the EXCH record as the anchor row for this exchange
-        $this->model->insert([
+        $id = $this->model->insert([
             'db'       => $db,
             'db_name'  => $dbName,
             'exchange' => $exchange,
@@ -70,6 +69,8 @@ class CabinetController extends BaseController
             'notes'    => trim($this->request->getPost('notes')),
         ]);
 
+        $this->audit->record('created', 'exchange', (int) $id, "Created exchange {$db}/{$exchange}");
+
         return redirect()->to('/exchange/' . urlencode($db) . '/' . urlencode($exchange))
             ->with('success', 'Exchange created. You can now add cabinets to it.');
     }
@@ -79,8 +80,7 @@ class CabinetController extends BaseController
     {
         $db       = urldecode($db);
         $exchange = urldecode($exchange);
-
-        $info = $this->model->getExchangeInfo($db, $exchange);
+        $info     = $this->model->getExchangeInfo($db, $exchange);
 
         if (! $info) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Exchange not found.');
@@ -112,24 +112,25 @@ class CabinetController extends BaseController
         ];
 
         if (! $this->validate($rules)) {
-            return redirect()->back()
-                ->with('errors', $this->validator->getErrors())
-                ->withInput();
+            return redirect()->back()->with('errors', $this->validator->getErrors())->withInput();
         }
 
-        $this->model->insert([
-            'db'       => strtoupper(trim($this->request->getPost('db'))),
+        $db       = strtoupper(trim($this->request->getPost('db')));
+        $exchange = strtoupper(trim($this->request->getPost('exchange')));
+        $cab      = strtoupper(trim($this->request->getPost('cab')));
+
+        $id = $this->model->insert([
+            'db'       => $db,
             'db_name'  => trim($this->request->getPost('db_name')),
-            'exchange' => strtoupper(trim($this->request->getPost('exchange'))),
-            'cab'      => strtoupper(trim($this->request->getPost('cab'))),
+            'exchange' => $exchange,
+            'cab'      => $cab,
             'address'  => trim($this->request->getPost('address')),
             'lat'      => $this->request->getPost('lat') ?: null,
             'lng'      => $this->request->getPost('lng') ?: null,
             'notes'    => trim($this->request->getPost('notes')),
         ]);
 
-        $db       = strtoupper(trim($this->request->getPost('db')));
-        $exchange = strtoupper(trim($this->request->getPost('exchange')));
+        $this->audit->record('created', 'cabinet', (int) $id, "Created cabinet {$exchange} {$cab}");
 
         return redirect()->to('/exchange/' . urlencode($db) . '/' . urlencode($exchange))
             ->with('success', 'Cabinet added.');
@@ -173,19 +174,42 @@ class CabinetController extends BaseController
         ];
 
         if (! $this->validate($rules)) {
-            return redirect()->back()
-                ->with('errors', $this->validator->getErrors())
-                ->withInput();
+            return redirect()->back()->with('errors', $this->validator->getErrors())->withInput();
         }
 
+        $newCab = strtoupper(trim($this->request->getPost('cab')));
+
         $this->model->update($id, [
-            'cab'     => strtoupper(trim($this->request->getPost('cab'))),
+            'cab'     => $newCab,
             'address' => trim($this->request->getPost('address')),
             'lat'     => $this->request->getPost('lat') ?: null,
             'lng'     => $this->request->getPost('lng') ?: null,
             'notes'   => trim($this->request->getPost('notes')),
         ]);
 
+        $this->audit->record('updated', 'cabinet', $id, "Updated cabinet {$cabinet['exchange']} {$newCab}");
+
         return redirect()->to('/cabinet/' . $id)->with('success', 'Cabinet updated.');
+    }
+
+    // POST /exchange/delete/:db/:exchange  — editor+
+    public function deleteExchange(string $db, string $exchange): \CodeIgniter\HTTP\RedirectResponse
+    {
+        $db       = urldecode($db);
+        $exchange = urldecode($exchange);
+
+        $info = $this->model->getExchangeInfo($db, $exchange);
+
+        if (! $info) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Exchange not found.');
+        }
+
+        $count = (int) $info['cabinet_count'];
+
+        $this->db->table('cabinets')->where('db', $db)->where('exchange', $exchange)->delete();
+
+        $this->audit->record('deleted', 'exchange', null, "Deleted exchange {$db}/{$exchange} ({$count} cabinets)");
+
+        return redirect()->to('/')->with('success', "Exchange {$exchange} and all {$count} cabinets deleted.");
     }
 }

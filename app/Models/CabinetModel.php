@@ -129,6 +129,31 @@ class CabinetModel extends Model
         return $this->countAll();
     }
 
+    public function getTotalExchanges(): int
+    {
+        return (int) $this->db->table('cabinets')
+            ->selectCount('DISTINCT CONCAT(db, "|", exchange)', 'n')
+            ->get()->getRow()->n;
+    }
+
+    public function getTotalRegions(): int
+    {
+        return (int) $this->db->table('cabinets')
+            ->selectCount('DISTINCT db', 'n')
+            ->get()->getRow()->n;
+    }
+
+    public function getTopExchanges(int $limit = 5): array
+    {
+        return $this->db->table('cabinets')
+            ->select('db, db_name, exchange, COUNT(*) as cabinet_count')
+            ->groupBy('db, db_name, exchange')
+            ->orderBy('cabinet_count', 'DESC')
+            ->limit($limit)
+            ->get()
+            ->getResultArray();
+    }
+
     /**
      * Flat cabinet search — fuzzy exchange name, exact cabinet number.
      * Allows callers to find a specific cabinet without knowing the db/region.

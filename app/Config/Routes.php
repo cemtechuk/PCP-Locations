@@ -46,6 +46,7 @@ $routes->group('api/v1', ['filter' => 'apikey'], function($routes) {
 $routes->group('', ['filter' => 'editor'], function($routes) {
     $routes->get('/exchange/create', 'CabinetController::createExchange');
     $routes->post('/exchange/create', 'CabinetController::storeExchange');
+    $routes->post('/exchange/delete/(:segment)/(:segment)', 'CabinetController::deleteExchange/$1/$2');
     $routes->get('/cabinet/create/(:segment)/(:segment)', 'CabinetController::create/$1/$2');
     $routes->post('/cabinet/create', 'CabinetController::store');
     $routes->get('/cabinet/edit/(:num)', 'CabinetController::edit/$1');
@@ -53,7 +54,14 @@ $routes->group('', ['filter' => 'editor'], function($routes) {
 });
 
 $routes->get('/', 'Home::index');
-$routes->get('/api/exchanges', 'Home::exchangeSearch');   // AJAX live search
-$routes->get('/api/nearby', 'Home::nearbyExchanges');      // GPS nearest exchanges
-$routes->get('/exchange/(:segment)/(:segment)', 'Home::exchangeDetail/$1/$2'); // /exchange/CL/HACKNEY
+$routes->get('/api/exchanges', 'Home::exchangeSearch');
+$routes->get('/api/nearby', 'Home::nearbyExchanges');
+$routes->get('/exchange/(:segment)/(:segment)/export', 'Home::exportExchange/$1/$2');
+$routes->get('/exchange/(:segment)/(:segment)', 'Home::exchangeDetail/$1/$2');
 $routes->get('/cabinet/(:num)', 'Home::cabinet/$1');
+
+// Admin dashboard
+$routes->group('', ['filter' => 'admin'], function($routes) {
+    $routes->get('/dashboard', 'DashboardController::index');
+    $routes->get('/dashboard/export', 'Home::exportAll');
+});

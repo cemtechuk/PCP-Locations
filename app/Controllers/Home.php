@@ -7,10 +7,12 @@ use App\Models\CabinetModel;
 class Home extends BaseController
 {
     protected CabinetModel $model;
+    protected \CodeIgniter\Database\BaseConnection $db;
 
     public function __construct()
     {
         $this->model = new CabinetModel();
+        $this->db    = \Config\Database::connect();
     }
 
     // ---------------------------------------------------------------
@@ -123,5 +125,61 @@ class Home extends BaseController
             'cabinet'    => $cabinet,
             'totalCount' => $this->model->getTotalCount(),
         ]);
+    }
+
+    // ---------------------------------------------------------------
+    // CSV export — all cabinets for one exchange
+    // GET /exchange/:db/:exchange/export
+    // ---------------------------------------------------------------
+    public function exportExchange(string $db, string $exchange): \CodeIgniter\HTTP\ResponseInterface
+    {
+        $db       = urldecode($db);
+        $exchange = urldecode($exchange);
+        $filter   = trim($this->request->getGet('q') ?? '');
+
+        $info = $this->model->getExchangeInfo($db, $exchange);
+
+        if (! $info) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Exchange not found.');
+        }
+
+        $cabinets = $this->model->getCabinetsForExchange($db, $exchange, $filter);
+
+        return $this->buildCsvResponse($cabinets, strtolower("{$exchange}_cabinets"));
+    }
+
+    // ---------------------------------------------------------------
+    // CSV export — all cabinets (admin only, called from dashboard)
+    // GET /dashboard/export
+    // ---------------------------------------------------------------
+    public function exportAll(): \CodeIgniter\HTTP\ResponseInterface
+    {
+        $cabinets = $this->db->table('cabinets')
+            ->orderBy('db')->orderBy('exchange')->orderBy('cab')
+            ->get()->getResultArray();
+
+        return $this->buildCsvResponse($cabinets, 'all_cabinets');
+    }
+
+    private function buildCsvResponse(array $cabinets, string $filename): \CodeIgniter\HTTP\ResponseInterface
+    {
+        $output = fopen('php://temp', 'r+');
+        fputcsv($output, ['db', 'db_name', 'exchange', 'cab', 'address', 'lat', 'lng', 'notes']);
+
+        foreach ($cabinets as $c) {
+            fputcsv($output, [
+                $c['db'], $c['db_name'], $c['exchange'], $c['cab'],
+                $c['address'], $c['lat'], $c['lng'], $c['notes'],
+            ]);
+        }
+
+        rewind($output);
+        $csv = stream_get_contents($output);
+        fclose($output);
+
+        return $this->response
+            ->setHeader('Content-Type', 'text/csv')
+            ->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '_' . date('Ymd') . '.csv"')
+            ->setBody($csv);
     }
 }

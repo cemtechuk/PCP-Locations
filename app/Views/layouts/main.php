@@ -302,7 +302,7 @@
             <?php endif ?>
         </a>
         <div class="d-flex align-items-center gap-4">
-<?php if (session()->get('role') === 'admin'): ?><a href="/users" class="nav-link-item">Users</a><a href="/settings" class="nav-link-item">Settings</a><?php endif ?>
+<?php if (session()->get('role') === 'admin'): ?><a href="/dashboard" class="nav-link-item">Dashboard</a><a href="/users" class="nav-link-item">Users</a><a href="/settings" class="nav-link-item">Settings</a><?php endif ?>
             <span class="nav-meta"><?= esc(session()->get('username') ?? '') ?></span>
             <a href="/logout" class="nav-link-item">Logout</a>
         </div>

@@ -3,6 +3,7 @@
 namespace App\Filters;
 
 use App\Models\ApiKeyModel;
+use App\Models\ApiLogModel;
 use CodeIgniter\Filters\FilterInterface;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
@@ -27,6 +28,13 @@ class ApiKeyFilter implements FilterInterface
         }
 
         $model->touchLastUsed((int) $record['id']);
+
+        (new ApiLogModel())->record(
+            (int) $record['id'],
+            $record['name'],
+            $request->getUri()->getPath(),
+            $request->getIPAddress()
+        );
     }
 
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null) {}

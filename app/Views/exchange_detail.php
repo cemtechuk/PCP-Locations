@@ -33,6 +33,20 @@ if ($info['exch_lat'] && $info['exch_lng']) {
                        class="btn-s-primary" style="font-size:.75rem;">+ Add Cabinet</a>
                 <?php endif ?>
                 <a href="<?= $mapsUrl ?>" target="_blank" class="btn-s-ghost">Map</a>
+                <a href="/exchange/<?= urlencode($info['db']) ?>/<?= urlencode($info['exchange']) ?>/export<?= $filter ? '?q=' . urlencode($filter) : '' ?>"
+                   class="btn-s-ghost">Export CSV</a>
+                <?php if (in_array(session()->get('role'), ['editor', 'admin'])): ?>
+                <form method="post"
+                      action="/exchange/delete/<?= urlencode($info['db']) ?>/<?= urlencode($info['exchange']) ?>"
+                      style="display:inline;"
+                      onsubmit="return confirm('Permanently delete <?= esc($info['exchange']) ?> and all <?= number_format($info['cabinet_count']) ?> cabinets? This cannot be undone.')">
+                    <?= csrf_field() ?>
+                    <button type="submit"
+                            style="background:none; border:1px solid #fca5a5; color:#c8001e; font-family:'Share Tech Mono',monospace; font-size:.72rem; letter-spacing:.06em; padding:.45rem .9rem; cursor:pointer;">
+                        Delete Exchange
+                    </button>
+                </form>
+                <?php endif ?>
             </div>
         </div>
     </div>
