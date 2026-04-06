@@ -53,7 +53,7 @@
                 <select name="role" class="form-control" style="font-family:'Share Tech Mono',monospace; font-size:.85rem;">
                     <?php
                     $currentRole = old('role', $user['role'] ?? 'user');
-                    foreach (['user' => 'User', 'editor' => 'Editor', 'admin' => 'Admin'] as $val => $label):
+                    foreach (['viewer' => 'Viewer', 'user' => 'User', 'editor' => 'Editor', 'admin' => 'Admin'] as $val => $label):
                     ?>
                         <option value="<?= $val ?>" <?= $currentRole === $val ? 'selected' : '' ?>><?= $label ?></option>
                     <?php endforeach ?>

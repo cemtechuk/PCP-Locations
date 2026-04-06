@@ -6,6 +6,7 @@ use App\Filters\AdminFilter;
 use App\Filters\ApiKeyFilter;
 use App\Filters\AuthFilter;
 use App\Filters\EditorFilter;
+use App\Filters\RateLimitFilter;
 use CodeIgniter\Config\Filters as BaseFilters;
 use CodeIgniter\Filters\Cors;
 use CodeIgniter\Filters\CSRF;
@@ -42,6 +43,7 @@ class Filters extends BaseFilters
         'editor'        => EditorFilter::class,
         'admin'         => AdminFilter::class,
         'apikey'        => ApiKeyFilter::class,
+        'ratelimit'     => RateLimitFilter::class,
     ];
 
     /**
@@ -80,8 +82,9 @@ class Filters extends BaseFilters
      */
     public array $globals = [
         'before' => [
-            'csrf' => ['except' => ['api/v1/*']],
-            'auth' => ['except' => ['login', 'login/*', 'api/v1/*']],
+            'csrf'      => ['except' => ['api/v1/*']],
+            'auth'      => ['except' => ['login', 'login/*', 'api/v1/*']],
+            'ratelimit' => ['except' => ['login', 'login/*', 'api/v1/*']],
         ],
         'after' => [],
     ];

@@ -38,7 +38,7 @@ class UsersController extends BaseController
             'username' => 'required|min_length[3]|max_length[50]|is_unique[users.username]',
             'email'    => 'required|valid_email|max_length[150]|is_unique[users.email]',
             'password' => 'required|min_length[8]',
-            'role'     => 'required|in_list[user,editor,admin]',
+            'role'     => 'required|in_list[viewer,user,editor,admin]',
         ];
 
         if (! $this->validate($rules)) {
@@ -84,7 +84,7 @@ class UsersController extends BaseController
         $rules = [
             'username' => "required|min_length[3]|max_length[50]|is_unique[users.username,id,{$id}]",
             'email'    => "required|valid_email|max_length[150]|is_unique[users.email,id,{$id}]",
-            'role'     => 'required|in_list[user,editor,admin]',
+            'role'     => 'required|in_list[viewer,user,editor,admin]',
         ];
 
         $newPassword = $this->request->getPost('password');

@@ -99,6 +99,20 @@
             <div style="font-size:.72rem; color:#999; margin-top:.5rem;">Leave both empty to keep the current favicon.</div>
         </div>
 
+        <!-- Viewer Rate Limit -->
+        <div style="background:#fff; border:1px solid #e0e0e0; padding:1.25rem 1.5rem; margin-bottom:1.5rem;">
+            <div class="s-label mb-2">VIEWER RATE LIMIT</div>
+            <div style="display:flex; align-items:center; gap:.75rem;">
+                <input type="number" name="viewer_rate_limit" class="form-control" min="1" max="99999"
+                       value="<?= esc(setting('viewer_rate_limit', '100')) ?>"
+                       style="max-width:120px; font-family:'Share Tech Mono',monospace;">
+                <span style="font-size:.83rem; color:#777;">requests per hour</span>
+            </div>
+            <div style="font-size:.72rem; color:#999; margin-top:.35rem;">
+                Maximum requests any <strong>Viewer</strong> account can make within a rolling 60-minute window. Applies to all page loads, searches, and AJAX calls.
+            </div>
+        </div>
+
         <button type="submit" class="btn-s-primary">Save Settings</button>
     </form>
 </div>
