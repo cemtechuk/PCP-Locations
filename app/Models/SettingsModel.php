@@ -21,7 +21,7 @@ class SettingsModel extends Model
         return $out;
     }
 
-    public function set(string $key, ?string $value): void
+    public function saveSetting(string $key, ?string $value): void
     {
         $existing = $this->where('key', $key)->first();
 

@@ -43,7 +43,7 @@ class SettingsController extends BaseController
             return redirect()->to('/settings')->with('errors', ['Site title cannot be empty.']);
         }
 
-        $this->settings->set('site_title', $title);
+        $this->settings->saveSetting('site_title', $title);
 
         // Logo upload
         $logo = $this->request->getFile('logo');
@@ -54,7 +54,7 @@ class SettingsController extends BaseController
             $this->deleteSettingFile('logo_path');
             $name = 'logo_' . time() . '.' . $logo->getClientExtension();
             $logo->move(FCPATH . 'uploads/settings', $name);
-            $this->settings->set('logo_path', $name);
+            $this->settings->saveSetting('logo_path', $name);
         }
 
         // Favicon upload
@@ -66,19 +66,19 @@ class SettingsController extends BaseController
             $this->deleteSettingFile('favicon_path');
             $name = 'favicon_' . time() . '.' . $favicon->getClientExtension();
             $favicon->move(FCPATH . 'uploads/settings', $name);
-            $this->settings->set('favicon_path', $name);
+            $this->settings->saveSetting('favicon_path', $name);
         }
 
         // Remove logo
         if ($this->request->getPost('remove_logo')) {
             $this->deleteSettingFile('logo_path');
-            $this->settings->set('logo_path', null);
+            $this->settings->saveSetting('logo_path', null);
         }
 
         // Remove favicon
         if ($this->request->getPost('remove_favicon')) {
             $this->deleteSettingFile('favicon_path');
-            $this->settings->set('favicon_path', null);
+            $this->settings->saveSetting('favicon_path', null);
         }
 
         return redirect()->to('/settings')->with('success', 'Settings saved.');
