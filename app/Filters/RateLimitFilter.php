@@ -10,6 +10,12 @@ class RateLimitFilter implements FilterInterface
 {
     public function before(RequestInterface $request, $arguments = null)
     {
+        // Home page is always accessible regardless of rate limit
+        $path = trim($request->getUri()->getPath(), '/');
+        if ($path === '') {
+            return;
+        }
+
         $role = session()->get('role');
 
         if ($role === 'viewer') {
