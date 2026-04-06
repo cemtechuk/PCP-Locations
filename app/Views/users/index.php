@@ -44,8 +44,8 @@
                     <?php endif ?>
                 </td>
                 <td style="color:#555;"><?= esc($user['email']) ?></td>
-                <td style="font-family:'Share Tech Mono',monospace; font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:<?= $roleColour[$user['role'] ?? 'user'] ?>;">
-                    <?= esc($user['role'] ?? 'user') ?>
+                <td style="font-family:'Share Tech Mono',monospace; font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:<?= $roleColour[$user['role'] ?: 'user'] ?? '#999' ?>;">
+                    <?= esc($user['role'] ?: 'user') ?>
                 </td>
                 <td style="font-family:'Share Tech Mono',monospace; font-size:.75rem; color:#999;">
                     <?= date('d M Y', strtotime($user['created_at'] . ' UTC')) ?>
