@@ -22,6 +22,10 @@ class ProfileController extends BaseController
 
     public function update(): \CodeIgniter\HTTP\RedirectResponse
     {
+        if (session()->get('role') === 'guest') {
+            return redirect()->to('/profile')->with('errors', ['Guest accounts cannot be modified.']);
+        }
+
         $userId = (int) session()->get('user_id');
         $model  = new UserModel();
 

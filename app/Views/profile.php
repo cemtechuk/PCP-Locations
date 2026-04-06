@@ -18,6 +18,15 @@
         <div class="s-alert-success mb-3"><?= esc($success) ?></div>
     <?php endif ?>
 
+    <?php if (session()->get('role') === 'guest'): ?>
+        <div class="s-card p-4 mb-4" style="border-left:3px solid var(--dim);">
+            <p class="s-label mb-1" style="color:var(--dim);">Read-only Account</p>
+            <p style="font-size:.85rem; color:var(--mid); margin:0;">
+                Guest accounts cannot be modified. Contact an administrator to update your details.
+            </p>
+        </div>
+    <?php else: ?>
+
     <form method="post" action="/profile" class="s-card p-4 mb-4">
         <?= csrf_field() ?>
 
@@ -48,6 +57,8 @@
 
         <button type="submit" class="btn btn-s-primary">Save Changes</button>
     </form>
+
+    <?php endif ?>
 
     <div class="s-card p-4">
         <p class="s-label mb-1">Session</p>
