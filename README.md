@@ -169,7 +169,13 @@ The login page is at `/login`. After login, users are redirected to the page the
 
 API routes bypass session auth entirely and use the `X-API-Key` header instead.
 
-Rate limits for `guest` and `viewer` use a rolling 60-minute window stored in the application cache. Requests over the limit receive a styled 429 page (or JSON for AJAX/API calls) showing the limit and how long until the window resets.
+Rate limits for `guest` and `viewer` use a rolling 60-minute window stored in the application cache. The following routes are always exempt regardless of limit: `/` (home page), `/login`, and `/logout`.
+
+When a rate-limited user visits the home page:
+- The search input is disabled with a faded red style; the placeholder shows the minutes remaining until the window resets
+- The nearby exchanges GPS fetch is suppressed
+
+Navigating to any other page while over the limit shows a styled 429 page (or JSON for AJAX calls) with the remaining time and links to go home or log out.
 
 ---
 
