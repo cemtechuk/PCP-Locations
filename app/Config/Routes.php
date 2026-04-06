@@ -22,6 +22,9 @@ $routes->group('', ['filter' => 'admin'], function($routes) {
     $routes->post('/apikeys/create', 'ApiKeysController::store');
     $routes->post('/apikeys/revoke/(:num)', 'ApiKeysController::revoke/$1');
     $routes->post('/apikeys/delete/(:num)', 'ApiKeysController::delete/$1');
+
+    $routes->get('/import', 'ImportController::index');
+    $routes->post('/import', 'ImportController::store');
 });
 
 // Public REST API — authenticated via X-API-Key header, no session required

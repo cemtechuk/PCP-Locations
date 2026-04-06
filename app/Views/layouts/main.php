@@ -246,7 +246,7 @@
             PCP<span>_</span>LOCATIONS
         </a>
         <div class="d-flex align-items-center gap-4">
-<?php if (session()->get('role') === 'admin'): ?><a href="/users" class="nav-link-item">Users</a><a href="/apikeys" class="nav-link-item">API Keys</a><?php endif ?>
+<?php if (session()->get('role') === 'admin'): ?><a href="/users" class="nav-link-item">Users</a><a href="/apikeys" class="nav-link-item">API Keys</a><a href="/import" class="nav-link-item">Import</a><?php endif ?>
             <span class="nav-meta"><?= esc(session()->get('username') ?? '') ?></span>
             <a href="/logout" class="nav-link-item">Logout</a>
         </div>
