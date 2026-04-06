@@ -53,7 +53,7 @@
                 const regionEl = row.querySelector('.sr-region');
                 if (nameEl)   new TextScramble(nameEl).setText(nameEl.dataset.text);
                 if (regionEl) new TextScramble(regionEl).setText(regionEl.dataset.text);
-            }, i * 45));
+            }, i * 45 * SCRAMBLE_SPEED));
         });
     }
 
@@ -158,7 +158,7 @@
         nearbyList.querySelectorAll('[data-text]').forEach(function (el, i) {
             nearbyTimers.push(setTimeout(function () {
                 new TextScramble(el).setText(el.dataset.text);
-            }, i * 40));
+            }, i * 40 * SCRAMBLE_SPEED));
         });
     }
 

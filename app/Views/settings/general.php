@@ -99,6 +99,24 @@
             <div style="font-size:.72rem; color:#999; margin-top:.5rem;">Leave both empty to keep the current favicon.</div>
         </div>
 
+        <!-- Scramble Animation Speed -->
+        <div style="background:#fff; border:1px solid #e0e0e0; padding:1.25rem 1.5rem; margin-bottom:1rem;">
+            <div class="s-label mb-2">SCRAMBLE ANIMATION SPEED</div>
+            <?php $spd = max(1, min(5, (int) setting('scramble_speed', '2'))); ?>
+            <div style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
+                <input type="range" name="scramble_speed" min="1" max="5" step="1"
+                       value="<?= $spd ?>"
+                       style="width:160px; accent-color:#c8001e;"
+                       oninput="document.getElementById('scramble-speed-val').textContent = ['','Fast','Normal','Slow','Very Slow','Glacial'][+this.value]">
+                <span id="scramble-speed-val" style="font-family:'Share Tech Mono',monospace; font-size:.8rem; color:#555; min-width:6ch;">
+                    <?= ['', 'Fast', 'Normal', 'Slow', 'Very Slow', 'Glacial'][$spd] ?>
+                </span>
+            </div>
+            <div style="font-size:.72rem; color:#999; margin-top:.35rem;">
+                Controls how fast text scrambles in on search results and cabinet lists.
+            </div>
+        </div>
+
         <!-- Viewer Rate Limit -->
         <div style="background:#fff; border:1px solid #e0e0e0; padding:1.25rem 1.5rem; margin-bottom:1.5rem;">
             <div class="s-label mb-2">VIEWER RATE LIMIT</div>

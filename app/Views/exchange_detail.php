@@ -114,7 +114,7 @@ if ($info['exch_lat'] && $info['exch_lng']) {
     var els = Array.from(document.querySelectorAll('.cab-id'));
     if (!els.length) return;
     // Adaptive stagger: cap total reveal time at ~900ms
-    var stagger = Math.min(35, Math.floor(900 / els.length));
+    var stagger = Math.min(35 * SCRAMBLE_SPEED, Math.floor(900 * SCRAMBLE_SPEED / els.length));
     els.forEach(function (el, i) {
         var text = el.textContent;
         el.innerHTML = '&nbsp;';

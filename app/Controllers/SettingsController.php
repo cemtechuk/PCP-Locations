@@ -45,6 +45,10 @@ class SettingsController extends BaseController
 
         $this->settings->saveSetting('site_title', $title);
 
+        // Scramble speed
+        $scrambleSpeed = max(1, min(5, (int) ($this->request->getPost('scramble_speed') ?? 2)));
+        $this->settings->saveSetting('scramble_speed', (string) $scrambleSpeed);
+
         // Viewer rate limit
         $rateLimit = (int) ($this->request->getPost('viewer_rate_limit') ?? 100);
         $this->settings->saveSetting('viewer_rate_limit', (string) max(1, $rateLimit));

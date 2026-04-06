@@ -10,6 +10,9 @@
     <link rel="icon" href="/favicon.ico">
     <?php endif ?>
     <script>
+    // 1 = fastest, 5 = slowest. Configured in Settings → General.
+    var SCRAMBLE_SPEED = <?= max(1, min(5, (int) setting('scramble_speed', '2'))) ?>;
+
     class TextScramble {
         constructor(el) {
             this.el    = el;
@@ -19,10 +22,11 @@
         setText(newText) {
             return new Promise(resolve => {
                 this.resolve = resolve;
+                const s = SCRAMBLE_SPEED;
                 this.queue = newText.split('').map((to, i) => ({
                     to,
-                    start : Math.floor(i * 1.4),
-                    end   : Math.floor(i * 1.4) + Math.floor(Math.random() * 5) + 4,
+                    start : Math.floor(i * 1.4 * s),
+                    end   : Math.floor(i * 1.4 * s) + Math.floor(Math.random() * 5 * s) + Math.ceil(4 * s),
                 }));
                 cancelAnimationFrame(this.frameReq);
                 this.frame = 0;
