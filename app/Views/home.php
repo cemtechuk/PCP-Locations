@@ -5,6 +5,19 @@
 <div class="s-hero">
     <div class="container" style="max-width: 700px;">
         <div class="mt-4 position-relative">
+            <?php if ($rateLimitMinutes): ?>
+            <input
+                type="text"
+                id="exchangeSearch"
+                class="form-control"
+                style="font-family:'Share Tech Mono',monospace; font-size:.9rem; padding:.65rem 1rem; letter-spacing:.03em;
+                       border-color:rgba(200,0,30,.35); background:rgba(200,0,30,.03);
+                       color:rgba(200,0,30,.45); cursor:not-allowed; animation:none;"
+                placeholder="RATE LIMITED — <?= $rateLimitMinutes ?> MINUTE<?= $rateLimitMinutes !== 1 ? 'S' : '' ?> REMAINING"
+                autocomplete="off"
+                disabled
+            >
+            <?php else: ?>
             <input
                 type="text"
                 id="exchangeSearch"
@@ -13,6 +26,7 @@
                 placeholder="TYPE EXCHANGE NAME..."
                 autocomplete="off"
             >
+            <?php endif ?>
 
             <!-- Live search results dropdown -->
             <div id="searchResults" class="d-none position-absolute w-100"
@@ -31,7 +45,7 @@
         <!-- Nearby exchanges -->
         <div id="nearbyWrap" style="margin-top:1.5rem;">
             <div id="nearbyStatus" style="font-family:'Share Tech Mono',monospace; font-size:.7rem; color:#bbb; letter-spacing:.06em;">
-                LOCATING...
+                <?= $rateLimitMinutes ? '' : 'LOCATING...' ?>
             </div>
             <div id="nearbyList" style="margin-top:.6rem;"></div>
         </div>
@@ -39,6 +53,7 @@
 </div>
 
 <script>
+var RATE_LIMITED = <?= $rateLimitMinutes ? 'true' : 'false' ?>;
 (function () {
     /* ── TextScramble helpers ── */
     let scrambleTimers  = [];
@@ -162,7 +177,7 @@
         });
     }
 
-    if ('geolocation' in navigator) {
+    if (!RATE_LIMITED && 'geolocation' in navigator) {
         navigator.geolocation.getCurrentPosition(
             function (pos) {
                 const lat = pos.coords.latitude;

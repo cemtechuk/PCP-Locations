@@ -21,9 +21,35 @@ class Home extends BaseController
     public function index(): string
     {
         return view('home', [
-            'title'      => 'PCP Locations — Exchange Search',
-            'totalCount' => $this->model->getTotalCount(),
+            'title'           => 'PCP Locations — Exchange Search',
+            'totalCount'      => $this->model->getTotalCount(),
+            'rateLimitMinutes' => $this->getRateLimitMinutesRemaining(),
         ]);
+    }
+
+    // Returns the minutes remaining in the rate-limit window for the
+    // current viewer/guest session, or null if not rate-limited.
+    private function getRateLimitMinutesRemaining(): ?int
+    {
+        $role = session()->get('role');
+
+        if ($role === 'viewer') {
+            $limit      = max(1, (int) setting('viewer_rate_limit', '100'));
+            $cachePrefix = 'rl_viewer_';
+        } elseif ($role === 'guest') {
+            $limit      = max(1, (int) setting('guest_rate_limit', '20'));
+            $cachePrefix = 'rl_guest_';
+        } else {
+            return null;
+        }
+
+        $data = \Config\Services::cache()->get($cachePrefix . (int) session()->get('user_id'));
+
+        if ($data && (int) $data['count'] >= $limit) {
+            return (int) ceil(max(1, $data['reset_at'] - time()) / 60);
+        }
+
+        return null;
     }
 
     // ---------------------------------------------------------------
