@@ -94,22 +94,43 @@
             letter-spacing: .04em;
         }
         .s-nav .brand span { color: var(--red); }
-        .s-nav .nav-meta {
-            font-family: var(--mono);
-            font-size: .72rem;
-            color: var(--dim);
-            letter-spacing: .06em;
-            text-transform: uppercase;
-        }
-        .s-nav a.nav-link-item {
+        .s-nav a.nav-link-item,
+        .s-nav button.nav-link-item {
             font-family: var(--mono);
             font-size: .72rem;
             color: var(--dim);
             text-decoration: none;
             letter-spacing: .06em;
             text-transform: uppercase;
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
         }
-        .s-nav a.nav-link-item:hover { color: var(--red); }
+        .s-nav a.nav-link-item:hover,
+        .s-nav button.nav-link-item:hover { color: var(--red); }
+        /* Admin dropdown */
+        .s-nav .dropdown-menu {
+            font-family: var(--mono);
+            font-size: .72rem;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            border: 1px solid var(--line);
+            border-top: 2px solid var(--red);
+            padding: .25rem 0;
+            min-width: 9rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,.08);
+        }
+        .s-nav .dropdown-item {
+            font-family: var(--mono);
+            font-size: .72rem;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--dim);
+            padding: .45rem 1rem;
+        }
+        .s-nav .dropdown-item:hover { color: var(--red); background: #fafafa; }
+        .s-nav .dropdown-toggle::after { margin-left: .3em; }
 
         /* SEARCH HERO */
         .s-hero {
@@ -302,9 +323,21 @@
             <?php endif ?>
         </a>
         <div class="d-flex align-items-center gap-4">
-<?php if (session()->get('role') === 'admin'): ?><a href="/dashboard" class="nav-link-item">Dashboard</a><a href="/users" class="nav-link-item">Users</a><a href="/settings" class="nav-link-item">Settings</a><?php endif ?>
-            <span class="nav-meta"><?= esc(session()->get('username') ?? '') ?></span>
-            <a href="/logout" class="nav-link-item">Logout</a>
+<?php if (session()->get('role') === 'admin'): ?>
+            <div class="dropdown">
+                <button class="nav-link-item dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Admin
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="/dashboard">Dashboard</a></li>
+                    <li><a class="dropdown-item" href="/users">Users</a></li>
+                    <li><a class="dropdown-item" href="/settings">Settings</a></li>
+                </ul>
+            </div>
+<?php endif ?>
+<?php if (session()->get('logged_in')): ?>
+            <a href="/profile" class="nav-link-item"><?= esc(session()->get('username') ?? '') ?></a>
+<?php endif ?>
         </div>
     </div>
 </nav>

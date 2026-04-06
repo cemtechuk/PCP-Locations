@@ -53,6 +53,10 @@ $routes->group('', ['filter' => 'editor'], function($routes) {
     $routes->post('/cabinet/edit/(:num)', 'CabinetController::update/$1');
 });
 
+// Profile — any logged-in user (auth filter is global)
+$routes->get('/profile', 'ProfileController::index');
+$routes->post('/profile', 'ProfileController::update');
+
 $routes->get('/', 'Home::index');
 $routes->get('/api/exchanges', 'Home::exchangeSearch');
 $routes->get('/api/nearby', 'Home::nearbyExchanges');

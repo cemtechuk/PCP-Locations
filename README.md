@@ -45,15 +45,30 @@ Users with the `editor` or `admin` role can:
 
 These controls appear inline in the UI — an "Add Exchange" button on the home page and "Add Cabinet" / "Edit" buttons on the relevant detail pages.
 
+### Admin — Dashboard
+URL: `/dashboard`
+
+An at-a-glance overview of the system: total cabinet records, exchanges, regions, users, and API keys. Shows recent audit activity (creates/updates/deletes), top exchanges by cabinet count, and API key usage. Includes a button to export the entire dataset as a CSV.
+
 ### Admin — User Management
-URL: `/users`
+URL: `/users` (also accessible from the Admin nav dropdown)
 
-Admins can create, edit, and delete user accounts. Each user has a `username`, `email`, `password` (bcrypt), and a `role` (`user`, `editor`, or `admin`).
+Admins can create, edit, and delete user accounts. Each user has a `username`, `email`, `password` (bcrypt), and a `role` (`viewer`, `user`, `editor`, or `admin`).
 
-### Admin — API Key Management
-URL: `/apikeys`
+The `viewer` role can log in and browse the site but earns no extra write permissions. A per-hour request cap for viewers is configurable in Settings → General.
 
-Admins can generate, view, and revoke API keys for the REST API. Each key is a 64-character hex string generated from `random_bytes`. The admin panel shows when a key was last used.
+### Admin — Settings
+URL: `/settings`
+
+Three-tab admin page:
+- **General** — site title, logo (file upload), favicon (file upload or paste an SVG string with live preview), text-scramble animation speed (1–5 scale), viewer hourly request limit
+- **Import** — upload a CSV file to bulk-import cabinet data without touching the CLI
+- **API Keys** — generate, view, revoke, and delete REST API keys; each key can have an optional per-hour rate limit
+
+### All users — Profile
+URL: `/profile`
+
+Every logged-in user can update their own username, email, and password. The logout button lives here.
 
 ---
 
@@ -78,9 +93,10 @@ All responses are JSON. Exchange and cabinet objects include a `url` field with 
 | Role | Access |
 |------|--------|
 | *(unauthenticated)* | Public read-only pages only |
-| `user` | Same as unauthenticated — session exists but no extra permissions |
+| `viewer` | Session exists; browse-only with a configurable hourly request cap |
+| `user` | Same as viewer but no rate limiting |
 | `editor` | All of the above + create/edit exchanges and cabinets |
-| `admin` | All of the above + user management + API key management |
+| `admin` | All of the above + user management + settings + dashboard |
 
 The login page is at `/login`. After login, users are redirected to the page they were trying to reach. The session stores `user_id`, `username`, `role`, and `logged_in`.
 
@@ -163,7 +179,7 @@ php spark serve                     # dev server at http://localhost:8080
 ## Tech Stack
 
 - **Backend:** CodeIgniter 4.7, PHP 8.2
-- **Database:** MySQL (single `cabinets` table + `users` + `api_keys`)
+- **Database:** MySQL (`cabinets`, `users`, `api_keys`, `api_logs`, `audit_log`, `settings`)
 - **Frontend:** Bootstrap 5.3, Share Tech Mono (Google Fonts), vanilla JS
 - **Maps:** Leaflet 1.9 with CartoDB light tiles
 - **Tests:** PHPUnit 10
