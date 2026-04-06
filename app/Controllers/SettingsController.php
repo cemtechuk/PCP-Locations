@@ -57,9 +57,20 @@ class SettingsController extends BaseController
             $this->settings->saveSetting('logo_path', $name);
         }
 
-        // Favicon upload
-        $favicon = $this->request->getFile('favicon');
-        if ($favicon && $favicon->isValid() && ! $favicon->hasMoved()) {
+        // Favicon — SVG string takes priority over file upload
+        $faviconSvg = trim($this->request->getPost('favicon_svg') ?? '');
+        $favicon    = $this->request->getFile('favicon');
+
+        if ($faviconSvg !== '') {
+            // Basic check that it looks like an SVG
+            if (stripos($faviconSvg, '<svg') === false) {
+                return redirect()->to('/settings')->with('errors', ['SVG string must contain a valid <svg> element.']);
+            }
+            $this->deleteSettingFile('favicon_path');
+            $name = 'favicon_' . time() . '.svg';
+            file_put_contents(FCPATH . 'uploads/settings/' . $name, $faviconSvg);
+            $this->settings->saveSetting('favicon_path', $name);
+        } elseif ($favicon && $favicon->isValid() && ! $favicon->hasMoved()) {
             if (! in_array(strtolower($favicon->getClientExtension()), ['ico', 'png', 'svg'])) {
                 return redirect()->to('/settings')->with('errors', ['Favicon must be .ico, .png, or .svg.']);
             }

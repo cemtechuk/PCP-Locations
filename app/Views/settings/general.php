@@ -67,15 +67,81 @@
                 </div>
             <?php endif ?>
 
-            <input type="file" name="favicon" accept=".ico,.png,.svg"
-                   style="font-family:'Share Tech Mono',monospace; font-size:.78rem; color:#555; padding:.4rem; border:1px solid #e0e0e0; background:#fafafa; width:100%; cursor:pointer;">
-            <div style="font-size:.72rem; color:#999; margin-top:.35rem;">
-                ICO, PNG or SVG. Leave empty to keep the current favicon.
+            <!-- Tab toggle -->
+            <div style="display:flex; gap:0; margin-bottom:.75rem; border-bottom:1px solid #e0e0e0;">
+                <button type="button" id="fav-tab-file" onclick="switchFavTab('file')"
+                        style="font-family:'Share Tech Mono',monospace; font-size:.68rem; letter-spacing:.06em; padding:.35rem .9rem; border:1px solid #e0e0e0; border-bottom:none; background:#fff; cursor:pointer; margin-bottom:-1px; color:#0d0d0d;">
+                    UPLOAD FILE
+                </button>
+                <button type="button" id="fav-tab-svg" onclick="switchFavTab('svg')"
+                        style="font-family:'Share Tech Mono',monospace; font-size:.68rem; letter-spacing:.06em; padding:.35rem .9rem; border:1px solid transparent; border-bottom:none; background:transparent; cursor:pointer; margin-bottom:-1px; color:#999;">
+                    PASTE SVG
+                </button>
             </div>
+
+            <div id="fav-panel-file">
+                <input type="file" name="favicon" accept=".ico,.png,.svg"
+                       style="font-family:'Share Tech Mono',monospace; font-size:.78rem; color:#555; padding:.4rem; border:1px solid #e0e0e0; background:#fafafa; width:100%; cursor:pointer;">
+                <div style="font-size:.72rem; color:#999; margin-top:.35rem;">ICO, PNG or SVG file.</div>
+            </div>
+
+            <div id="fav-panel-svg" style="display:none;">
+                <textarea name="favicon_svg" rows="6" class="form-control"
+                          style="font-family:'Share Tech Mono',monospace; font-size:.75rem; resize:vertical;"
+                          placeholder="<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;>...</svg>"><?= esc(old('favicon_svg')) ?></textarea>
+                <div style="font-size:.72rem; color:#999; margin-top:.35rem;">Paste a valid SVG string. The <code>&lt;svg&gt;</code> tag must be present.</div>
+                <div id="fav-svg-preview" style="margin-top:.6rem; display:none; align-items:center; gap:.6rem;">
+                    <div id="fav-svg-render" style="width:32px; height:32px; border:1px solid #e0e0e0; background:#fafafa; display:flex; align-items:center; justify-content:center; overflow:hidden;"></div>
+                    <span style="font-family:'Share Tech Mono',monospace; font-size:.68rem; color:#999; letter-spacing:.04em;">PREVIEW</span>
+                </div>
+            </div>
+
+            <div style="font-size:.72rem; color:#999; margin-top:.5rem;">Leave both empty to keep the current favicon.</div>
         </div>
 
         <button type="submit" class="btn-s-primary">Save Settings</button>
     </form>
 </div>
+
+<script>
+function switchFavTab(tab) {
+    var isFile = tab === 'file';
+    document.getElementById('fav-panel-file').style.display = isFile ? '' : 'none';
+    document.getElementById('fav-panel-svg').style.display  = isFile ? 'none' : '';
+
+    var tabFile = document.getElementById('fav-tab-file');
+    var tabSvg  = document.getElementById('fav-tab-svg');
+
+    tabFile.style.border        = isFile ? '1px solid #e0e0e0' : '1px solid transparent';
+    tabFile.style.borderBottom  = 'none';
+    tabFile.style.background    = isFile ? '#fff' : 'transparent';
+    tabFile.style.color         = isFile ? '#0d0d0d' : '#999';
+
+    tabSvg.style.border        = isFile ? '1px solid transparent' : '1px solid #e0e0e0';
+    tabSvg.style.borderBottom  = 'none';
+    tabSvg.style.background    = isFile ? 'transparent' : '#fff';
+    tabSvg.style.color         = isFile ? '#999' : '#0d0d0d';
+}
+
+// Live SVG preview
+document.querySelector('textarea[name="favicon_svg"]').addEventListener('input', function () {
+    var val     = this.value.trim();
+    var preview = document.getElementById('fav-svg-preview');
+    var render  = document.getElementById('fav-svg-render');
+
+    if (val.toLowerCase().includes('<svg')) {
+        render.innerHTML = val;
+        var svg = render.querySelector('svg');
+        if (svg) {
+            svg.style.width  = '100%';
+            svg.style.height = '100%';
+        }
+        preview.style.display = 'flex';
+    } else {
+        preview.style.display = 'none';
+        render.innerHTML = '';
+    }
+});
+</script>
 
 <?= $this->endSection() ?>
