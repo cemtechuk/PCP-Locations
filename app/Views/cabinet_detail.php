@@ -120,6 +120,26 @@
     </div>
 </div>
 
+<script>
+(function () {
+    var entry = {
+        id:       <?= (int) $cabinet['id'] ?>,
+        exchange: <?= json_encode($cabinet['exchange']) ?>,
+        cab:      <?= json_encode($cabinet['cab']) ?>,
+        db_name:  <?= json_encode($cabinet['db_name']) ?>,
+        url:      '/cabinet/<?= (int) $cabinet['id'] ?>',
+        ts:       Date.now()
+    };
+    try {
+        var list = JSON.parse(localStorage.getItem('recentCabinets') || '[]');
+        list = list.filter(function (c) { return c.id !== entry.id; });
+        list.unshift(entry);
+        if (list.length > 6) list = list.slice(0, 6);
+        localStorage.setItem('recentCabinets', JSON.stringify(list));
+    } catch (e) {}
+})();
+</script>
+
 <?php if ($cabinet['lat'] && $cabinet['lng']): ?>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

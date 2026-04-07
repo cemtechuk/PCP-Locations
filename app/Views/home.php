@@ -49,6 +49,12 @@
             </div>
             <div id="nearbyList" style="margin-top:.6rem;"></div>
         </div>
+
+        <!-- Recently viewed cabinets -->
+        <div id="recentWrap" style="margin-top:1.5rem; display:none;">
+            <div style="font-family:'Share Tech Mono',monospace; font-size:.7rem; color:#bbb; letter-spacing:.06em;">RECENTLY VIEWED CABINETS</div>
+            <div id="recentList" style="margin-top:.6rem;"></div>
+        </div>
     </div>
 </div>
 
@@ -176,6 +182,29 @@ var RATE_LIMITED = <?= $rateLimitMinutes ? 'true' : 'false' ?>;
             }, i * 40 * SCRAMBLE_SPEED));
         });
     }
+
+    /* ── Recently viewed cabinets ── */
+    (function () {
+        var list;
+        try { list = JSON.parse(localStorage.getItem('recentCabinets') || '[]'); } catch (e) { list = []; }
+        if (!list.length) return;
+
+        var wrap      = document.getElementById('recentWrap');
+        var container = document.getElementById('recentList');
+        wrap.style.display = '';
+
+        container.innerHTML = list.map(function (c) {
+            return '<div style="display:flex; align-items:center; justify-content:space-between;' +
+                   'padding:.55rem 0; border-bottom:1px solid #f0f0f0; cursor:pointer;"' +
+                   ' onclick="window.location.href=\'' + c.url + '\'">' +
+                   '<div>' +
+                   '<span style="font-family:\'Share Tech Mono\',monospace; font-size:.88rem; letter-spacing:.04em;">' + c.exchange + '</span>' +
+                   '<span style="font-family:\'Share Tech Mono\',monospace; font-size:.72rem; color:#c8001e; margin-left:.6rem; letter-spacing:.04em;">' + c.cab + '</span>' +
+                   '<span style="font-family:\'Share Tech Mono\',monospace; font-size:.7rem; color:#999; margin-left:.8rem;">' + c.db_name.toUpperCase() + '</span>' +
+                   '</div>' +
+                   '</div>';
+        }).join('');
+    })();
 
     if (!RATE_LIMITED && 'geolocation' in navigator) {
         navigator.geolocation.getCurrentPosition(
