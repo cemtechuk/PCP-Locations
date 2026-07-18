@@ -2,6 +2,12 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Working directive
+
+After completing any change to this repo: commit it and push to `origin master`. Do not wait to be asked. Update this file when a change alters architecture, commands, or documented behaviour, and update memory when it reveals a durable preference or constraint.
+
+State clearly in the reply when a change is unverified — push it anyway, but don't let the commit message imply it was tested.
+
 ## What this app is
 
 PCP Locations is a CodeIgniter 4 web app (PHP 8.2+, MySQL) for browsing UK telephone exchange cabinet (PCP) locations. Data is scraped from cablocations.co.uk, imported via CSV, and served through both a public web UI and a token-authenticated REST API.

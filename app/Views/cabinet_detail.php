@@ -199,15 +199,47 @@
     var el = document.getElementById('distance-val');
     if (!navigator.geolocation) { el.textContent = 'N/A'; return; }
 
+    function fmt(d) {
+        return d < 1 ? Math.round(d * 1000) + ' m' : d.toFixed(2) + ' km';
+    }
+
+    // The first GPS fix is typically a coarse wifi/cell estimate. Keep watching
+    // and refining until the reported accuracy settles, rather than freezing on
+    // that first (often wildly wrong) snapshot.
+    var GOOD_ACCURACY = 15;    // metres — treat as settled
+    var MAX_WATCH_MS  = 15000; // stop refining after this, keep best fix so far
+    var FIX_TIMEOUT_MS = 10000; // per-fix budget before the error callback fires
+    var watchId = null, timer = null, best = Infinity;
+
+    function stop() {
+        if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+        if (timer !== null) clearTimeout(timer);
+        watchId = timer = null;
+    }
+
     el.textContent = 'LOCATING...';
-    navigator.geolocation.getCurrentPosition(function(pos) {
+    watchId = navigator.geolocation.watchPosition(function (pos) {
+        var acc = pos.coords.accuracy;
+        // Ignore fixes that are worse than what we already have.
+        if (acc > best) return;
+        best = acc;
+
         var d = haversine(pos.coords.latitude, pos.coords.longitude, cabLat, cabLng);
-        el.textContent = d < 1
-            ? Math.round(d * 1000) + ' m'
-            : d.toFixed(2) + ' km';
-    }, function() {
-        el.textContent = 'UNAVAILABLE';
-    }, { timeout: 8000 });
+        el.textContent = fmt(d) + ' ±' + Math.round(acc) + ' m'
+            + (acc > GOOD_ACCURACY ? ' (settling…)' : '');
+
+        if (acc <= GOOD_ACCURACY) stop();
+    }, function () {
+        stop();
+        if (best === Infinity) el.textContent = 'UNAVAILABLE';
+    }, { enableHighAccuracy: true, maximumAge: 0, timeout: FIX_TIMEOUT_MS });
+
+    timer = setTimeout(function () {
+        stop();
+        // Drop the "settling" hint — we've stopped refining, this is final.
+        el.textContent = el.textContent.replace(' (settling…)', '');
+    }, MAX_WATCH_MS);
+    window.addEventListener('pagehide', stop);
 })();
 </script>
 <?php endif ?>
