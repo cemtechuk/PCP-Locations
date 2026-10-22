@@ -143,6 +143,10 @@
 <?php if ($cabinet['lat'] && $cabinet['lng']): ?>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+    .samaritan-tiles { filter: grayscale(1) brightness(1.08) contrast(0.9); }
+    #samaritan-map .leaflet-control-attribution { font-size: 9px; background: rgba(255,255,255,0.6); }
+</style>
 <script>
 (function() {
     var cabLat = <?= (float)$cabinet['lat'] ?>;
@@ -151,11 +155,15 @@
     // --- Samaritan map ---
     var map = L.map('samaritan-map', {
         zoomControl: false,
-        attributionControl: false,
     }).setView([cabLat, cabLng], 17);
+    map.attributionControl.setPrefix(false);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    // OSM standard tiles (no API key needed; attribution is required by the
+    // tile usage policy). Desaturated via CSS to keep the light basemap look.
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
+        className: 'samaritan-tiles',
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>',
     }).addTo(map);
 
     // Hollow red triangle marker — base at top, tip pointing down to location
